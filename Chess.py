@@ -1,17 +1,12 @@
-# Importing necessary modules from pygame and math
 import pygame as pg
 from pygame import *
 import math
 
 # Setting the window size for the chessboard
 size = 700
-# Creating the display window with the specified size
 WIN = display.set_mode((size, size))
-# Setting the title of the window
 display.set_caption('Chess')
-# Creating a clock object to control the frame rate
 clock = time.Clock()
-# Initializing the font module for rendering text
 font.init()
 
 # Defining the size of a single cell on the chessboard
@@ -19,9 +14,8 @@ scale = size / 8
 
 # Creating a list of rectangles to represent the chessboard cells
 RectList = []
-for i in range(8):  # Loop through rows
-    for j in range(4):  # Loop through columns
-        # Add alternating rectangles to create the chessboard pattern
+for i in range(8):  # rows
+    for j in range(4):  # columns
         RectList.append(
             pg.Rect(((i % 2) * scale + 2 * j * scale, i * scale, scale, scale)))
 
@@ -39,24 +33,21 @@ Board = [
 
 # Dictionary defining attack patterns for each piece type
 AttackDict = {
-    'R': [[0, 1], [1, 0], [0, -1], [-1, 0], 1],  # Rook moves in straight lines
-    'B': [[1, 1], [-1, -1], [1, -1], [-1, 1], 1],  # Bishop moves diagonally
-    # Queen combines rook and bishop moves
+    'R': [[0, 1], [1, 0], [0, -1], [-1, 0], 1],  # Rook
+    'B': [[1, 1], [-1, -1], [1, -1], [-1, 1], 1],  # Bishop
+    # Queen
     'Q': [[1, 1], [-1, -1], [1, -1], [-1, 1], [0, 1], [1, 0], [0, -1], [-1, 0], 1],
-    # Knight moves in L-shapes
+    # Knight
     'N': [[1, 2], [2, 1], [-1, -2], [-2, -1], [-1, 2], [-2, 1], [1, -2], [2, -1], 0],
-    'P': [[-1, -1], [1, -1], 0],  # White pawn attacks diagonally
-    'p': [[-1, 1], [1, 1], 0],  # Black pawn attacks diagonally
-    # King moves one square in any direction
-    'K': [[1, 1], [-1, -1], [1, -1], [-1, 1], [0, 1], [1, 0], [0, -1], [-1, 0], 0]
+    'P': [[-1, -1], [1, -1], 0],  # White pawn
+    'p': [[-1, 1], [1, 1], 0],  # Black pawn
+    'K': [[1, 1], [-1, -1], [1, -1], [-1, 1], [0, 1], [1, 0], [0, -1], [-1, 0], 0]  # King
 }
 
 
 # Function to draw the chessboard background
 def DrawBg():
-    # Fill the entire window with a brown color
     pg.draw.rect(WIN, (181, 136, 99), (0, 0, size, size))
-    # Draw the lighter squares of the chessboard
     for R in RectList:
         pg.draw.rect(WIN, ((240, 217, 181)), R)
 
@@ -64,24 +55,24 @@ def DrawBg():
 # Function to draw the chess pieces on the board
 def DrawPieces():
     piece_scale = size / 9  # Scale for resizing piece images
-    y = 0  # Row index
-    for Brd in Board:  # Loop through each row of the board
-        x = 0  # Column index
-        for B in Brd:  # Loop through each cell in the row
+    y = 0  # Row
+    for Brd in Board:
+        x = 0  # Column
+        for B in Brd:
             if Board[y][x] != '.':  # If the cell is not empty
                 # Load and draw the piece image at the correct position
                 WIN.blit(transform.scale(pg.image.load(
                     Board[y][x] + '.png'), (piece_scale, piece_scale)), (x / 2 + x * scale, y / 2 + y * scale))
-            x += 1  # Move to the next column
-        y += 1  # Move to the next row
+            x += 1
+        y += 1
 
 
 # Function to check if the king is in check
 def CheckCheck(B_W):  # B_W is 0 for white king, 1 for black king
-    y = 0  # Row index
-    for Brd in Board:  # Loop through each row of the board
-        x = 0  # Column index
-        for B in Brd:  # Loop through each cell in the row
+    y = 0  # Row
+    for Brd in Board:
+        x = 0  # Column
+        for B in Brd:
             if B != '.':  # If the cell is not empty
                 if B[1] != B_W:  # If the piece belongs to the opponent
                     # Loop through attack patterns
@@ -101,15 +92,15 @@ def CheckCheck(B_W):  # B_W is 0 for white king, 1 for black king
                                 # If it's the king, return True (king is in check)
                                 else:
                                     return True
-            x += 1  # Move to the next column
-        y += 1  # Move to the next row
+            x += 1
+        y += 1
     return False  # Return False if the king is not in check
 
 
 # Function to show possible moves for a piece
 def ShowVariants(x, y):
     global Variants  # List of possible moves
-    Variants = []  # Reset the list
+    Variants = []
     B = Board[y][x]  # Get the piece at the given position
     for shift in AttackDict[B[0]][0:-1]:  # Loop through attack patterns
         pos = [x, y]  # Starting position
@@ -203,17 +194,17 @@ def ShowVariants(x, y):
 # Function to check for checkmate or stalemate
 def CheckCheckMate(B_W):
     global Variants  # List of possible moves
-    y = 0  # Row index
-    for Brd in Board:  # Loop through each row of the board
-        x = 0  # Column index
-        for B in Brd:  # Loop through each cell in the row
+    y = 0  # Row
+    for Brd in Board:
+        x = 0  # Column
+        for B in Brd:
             if B[-1] == B_W:  # If the piece belongs to the current player
                 ShowVariants(x, y)  # Show possible moves for the piece
                 if len(Variants) > 0:  # If there are valid moves
                     Variants = []  # Reset the list of moves
                     return 0  # Return 0 (no checkmate or stalemate)
-            x += 1  # Move to the next column
-        y += 1  # Move to the next row
+            x += 1
+        y += 1
     if CheckCheck(B_W):  # If the king is in check
         Variants = []  # Reset the list of moves
         return 1  # Return 1 (checkmate)
@@ -222,10 +213,9 @@ def CheckCheckMate(B_W):
         return 2  # Return 2 (stalemate)
 
 
-# Main game loop
 Variants = []  # List of possible moves
-DrawBg()  # Draw the chessboard background
-DrawPieces()  # Draw the chess pieces
+DrawBg()
+DrawPieces()
 Turn = 0  # Initialize the turn (0 for black, 1 for white)
 game = 1  # Game state (1 for running, 0 for stopped)
 check = 0  # Game state check (0 for normal, 1 for checkmate, 2 for stalemate)
@@ -241,13 +231,13 @@ while game:  # Main game loop
         PawnX = Board[0].index('P0')  # Get the column of the pawn
         # Display promotion options (queen, rook, bishop, knight)
         WIN.blit(transform.scale(image.load(
-            'Q0.png'), (40, 40)), (PawnX * 80, 0))
-        WIN.blit(transform.scale(image.load('R0.png'),
-                 (40, 40)), (40 + PawnX * 80, 0))
-        WIN.blit(transform.scale(image.load(
-            'B0.png'), (40, 40)), (PawnX * 80, 40))
-        WIN.blit(transform.scale(image.load('H0.png'),
-                 (40, 40)), (40 + PawnX * 80, 40))
+            'Q0.png'), (40, 40)), (PawnX * 80, 0))  # TO RESIZE
+        WIN.blit(transform.scale(image.load('R0.png'),  # TO RESIZE
+                 (40, 40)), (40 + PawnX * 80, 0))  # TO RESIZE
+        WIN.blit(transform.scale(image.load(  # TO RESIZE
+            'B0.png'), (40, 40)), (PawnX * 80, 40))  # TO RESIZE
+        WIN.blit(transform.scale(image.load('H0.png'),  # TO RESIZE
+                 (40, 40)), (40 + PawnX * 80, 40))  # TO RESIZE
 
     # Handle pawn promotion for black
     if Board[7].count('p1') and Turn == 0:  # If a black pawn reaches the last row
@@ -255,16 +245,16 @@ while game:  # Main game loop
         PawnX = Board[7].index('p1')  # Get the column of the pawn
         # Display promotion options (queen, rook, bishop, knight)
         WIN.blit(transform.scale(image.load(
-            'Q1.png'), (40, 40)), (PawnX * 80, 560))
-        WIN.blit(transform.scale(image.load('R1.png'),
-                 (40, 40)), (40 + PawnX * 80, 560))
-        WIN.blit(transform.scale(image.load(
-            'B1.png'), (40, 40)), (PawnX * 80, 600))
-        WIN.blit(transform.scale(image.load('H1.png'),
-                 (40, 40)), (40 + PawnX * 80, 600))
+            'Q1.png'), (40, 40)), (PawnX * 80, 560))  # TO RESIZE
+        WIN.blit(transform.scale(image.load('R1.png'),  # TO RESIZE
+                 (40, 40)), (40 + PawnX * 80, 560))  # TO RESIZE
+        WIN.blit(transform.scale(image.load(  # TO RESIZE
+            'B1.png'), (40, 40)), (PawnX * 80, 600))  # TO RESIZE
+        WIN.blit(transform.scale(image.load('H1.png'),  # TO RESIZE
+                 (40, 40)), (40 + PawnX * 80, 600))  # TO RESIZE
 
-    for e in event.get():  # Handle events
-        if e.type == QUIT:  # If the quit event is triggered
+    for e in event.get():
+        if e.type == QUIT:
             game = 0  # Stop the game
 
         if e.type == pg.MOUSEBUTTONDOWN and e.button == 1:  # Left mouse button pressed
@@ -281,8 +271,8 @@ while game:  # Main game loop
                     elif 80 > x >= 40 and 80 > y >= 40:  # Promote to knight
                         Board[0][PawnX] = 'H0'
                     Turn = 1  # Switch back to white's turn
-                    DrawBg()  # Redraw the chessboard background
-                    DrawPieces()  # Redraw the chess pieces
+                    DrawBg()
+                    DrawPieces()
                     check = CheckCheckMate('1')  # Check the game state
                     if check == 1:  # If white wins
                         WIN.blit(pg.font.SysFont(None, 30).render(
@@ -303,8 +293,8 @@ while game:  # Main game loop
                     elif 80 > x >= 40 and 640 > y >= 600:  # Promote to knight
                         Board[7][PawnX] = 'H1'
                     Turn = 0  # Switch back to black's turn
-                    DrawBg()  # Redraw the chessboard background
-                    DrawPieces()  # Redraw the chess pieces
+                    DrawBg()
+                    DrawPieces()
                     check = CheckCheckMate('0')  # Check the game state
                     if check == 1:  # If black wins
                         WIN.blit(pg.font.SysFont(None, 30).render(
@@ -382,10 +372,10 @@ while game:  # Main game loop
                 if check == 2:  # If it's a draw
                     WIN.blit(pg.font.SysFont(None, 30).render(
                         'DRAW', False, (30, 30, 30)), (290, 310))
-                Variants = []  # Reset the list of moves
+                Variants = []
             if check == 0:  # If the game continues
-                DrawBg()  # Redraw the chessboard background
-                DrawPieces()  # Redraw the chess pieces
+                DrawBg()
+                DrawPieces()
             Variants = []  # Reset the list of moves
-    display.update()  # Update the display
+    display.update()
     clock.tick(60)  # Limit the frame rate to 60 FPS
