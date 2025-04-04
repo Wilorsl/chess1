@@ -3,7 +3,7 @@ from pygame import *
 import math
 
 # Setting the window size for the chessboard
-size = 700
+size = 800
 WIN = display.set_mode((size, size))
 display.set_caption('Chess')
 clock = time.Clock()
@@ -30,6 +30,7 @@ Board = [
     ['P0', 'P0', 'P0', 'P0', 'P0', 'P0', 'P0', 'P0'],  # White
     ['R0', 'N0', 'B0', 'Q0', 'K0', 'B0', 'N0', 'R0']   # pieces
 ]
+
 
 # Dictionary defining attack patterns for each piece type
 AttackDict = {
@@ -231,13 +232,13 @@ while game:  # Main game loop
         PawnX = Board[0].index('P0')  # Get the column of the pawn
         # Display promotion options (queen, rook, bishop, knight)
         WIN.blit(transform.scale(image.load(
-            'Q0.png'), (40, 40)), (PawnX * 80, 0))  # TO RESIZE
-        WIN.blit(transform.scale(image.load('R0.png'),  # TO RESIZE
-                 (40, 40)), (40 + PawnX * 80, 0))  # TO RESIZE
-        WIN.blit(transform.scale(image.load(  # TO RESIZE
-            'B0.png'), (40, 40)), (PawnX * 80, 40))  # TO RESIZE
-        WIN.blit(transform.scale(image.load('H0.png'),  # TO RESIZE
-                 (40, 40)), (40 + PawnX * 80, 40))  # TO RESIZE
+            'Q0.png'), (scale/2, scale/2)), (PawnX * scale, 0))
+        WIN.blit(transform.scale(image.load('R0.png'),
+                 (scale/2, scale/2)), (scale/2 + PawnX * scale, 0))
+        WIN.blit(transform.scale(image.load(
+            'B0.png'), (scale/2, scale/2)), (PawnX * scale, scale/2))
+        WIN.blit(transform.scale(image.load('N0.png'),
+                 (scale/2, scale/2)), (scale/2 + PawnX * scale, scale/2))
 
     # Handle pawn promotion for black
     if Board[7].count('p1') and Turn == 0:  # If a black pawn reaches the last row
@@ -245,13 +246,13 @@ while game:  # Main game loop
         PawnX = Board[7].index('p1')  # Get the column of the pawn
         # Display promotion options (queen, rook, bishop, knight)
         WIN.blit(transform.scale(image.load(
-            'Q1.png'), (40, 40)), (PawnX * 80, 560))  # TO RESIZE
-        WIN.blit(transform.scale(image.load('R1.png'),  # TO RESIZE
-                 (40, 40)), (40 + PawnX * 80, 560))  # TO RESIZE
-        WIN.blit(transform.scale(image.load(  # TO RESIZE
-            'B1.png'), (40, 40)), (PawnX * 80, 600))  # TO RESIZE
-        WIN.blit(transform.scale(image.load('H1.png'),  # TO RESIZE
-                 (40, 40)), (40 + PawnX * 80, 600))  # TO RESIZE
+            'Q1.png'), (scale/2, scale/2)), (PawnX * scale, scale*7))
+        WIN.blit(transform.scale(image.load('R1.png'),
+                 (scale/2, scale/2)), (scale/2 + PawnX * scale, scale*7))
+        WIN.blit(transform.scale(image.load(
+            'B1.png'), (scale/2, scale/2)), (PawnX * scale, scale*7.5))
+        WIN.blit(transform.scale(image.load('N1.png'),
+                 (scale/2, scale/2)), (scale/2 + PawnX * scale, scale*7.5))
 
     for e in event.get():
         if e.type == QUIT:
@@ -260,48 +261,50 @@ while game:  # Main game loop
         if e.type == pg.MOUSEBUTTONDOWN and e.button == 1:  # Left mouse button pressed
             if Turn == -1:  # Handle white pawn promotion
                 x, y = (e.pos)  # Get the mouse position
-                if PawnX + 1 > x / 80 >= PawnX and y < 80:  # Check if the click is within the promotion area
-                    x = x % 80  # Get the relative x-coordinate
-                    if 40 > x >= 0 and 40 > y >= 0:  # Promote to queen
+                # Check if the click is within the promotion area
+                if PawnX + 1 > x / scale >= PawnX and y < scale:
+                    x = x % scale  # Get the relative x-coordinate
+                    if scale/2 > x >= 0 and scale/2 > y >= 0:  # Promote to queen
                         Board[0][PawnX] = 'Q0'
-                    elif 40 > x >= 0 and 80 > y >= 40:  # Promote to bishop
+                    elif scale/2 > x >= 0 and scale > y >= scale/2:  # Promote to bishop
                         Board[0][PawnX] = 'B0'
-                    elif 80 > x >= 40 and 40 > y >= 0:  # Promote to rook
+                    elif scale > x >= scale/2 and scale/2 > y >= 0:  # Promote to rook
                         Board[0][PawnX] = 'R0'
-                    elif 80 > x >= 40 and 80 > y >= 40:  # Promote to knight
-                        Board[0][PawnX] = 'H0'
+                    elif scale > x >= scale/2 and scale > y >= scale/2:  # Promote to knight
+                        Board[0][PawnX] = 'N0'
                     Turn = 1  # Switch back to white's turn
                     DrawBg()
                     DrawPieces()
                     check = CheckCheckMate('1')  # Check the game state
                     if check == 1:  # If white wins
-                        WIN.blit(pg.font.SysFont(None, 30).render(
-                            'WHITE WON', False, (30, 30, 30)), (260, 310))
+                        WIN.blit(pg.font.SysFont(None, (int)(scale/2)).render(
+                            'WHITE WON', False, (30, 30, 30)), ((int)(3*scale), (int)(3.5*scale)))
                     if check == 2:  # If it's a draw
-                        WIN.blit(pg.font.SysFont(None, 30).render(
-                            'DRAW', False, (30, 30, 30)), (290, 310))
+                        WIN.blit(pg.font.SysFont(None, (int)(scale/2)).render(
+                            'DRAW', False, (30, 30, 30)), ((int)(3.5*scale), (int)(3.5*scale)))
             if Turn == -2:  # Handle black pawn promotion
                 x, y = (e.pos)  # Get the mouse position
-                if PawnX + 1 > x / 80 >= PawnX and y >= 560:  # Check if the click is within the promotion area
-                    x = x % 80  # Get the relative x-coordinate
-                    if 40 > x >= 0 and 600 > y >= 560:  # Promote to queen
+                # Check if the click is within the promotion area
+                if PawnX + 1 > x / scale >= PawnX and y >= scale*7:
+                    x = x % scale  # Get the relative x-coordinate
+                    if scale/2 > x >= 0 and scale*7.5 > y >= scale*7:  # Promote to queen
                         Board[7][PawnX] = 'Q1'
-                    elif 40 > x >= 0 and 640 > y >= 600:  # Promote to bishop
+                    elif scale/2 > x >= 0 and scale*8 > y >= scale*7.5:  # Promote to bishop
                         Board[7][PawnX] = 'B1'
-                    elif 80 > x >= 40 and 600 > y >= 560:  # Promote to rook
+                    elif scale > x >= scale/2 and scale*7.5 > y >= scale*7:  # Promote to rook
                         Board[7][PawnX] = 'R1'
-                    elif 80 > x >= 40 and 640 > y >= 600:  # Promote to knight
-                        Board[7][PawnX] = 'H1'
+                    elif scale > x >= scale/2 and scale*8 > y >= scale*7.5:  # Promote to knight
+                        Board[7][PawnX] = 'N1'
                     Turn = 0  # Switch back to black's turn
                     DrawBg()
                     DrawPieces()
                     check = CheckCheckMate('0')  # Check the game state
                     if check == 1:  # If black wins
-                        WIN.blit(pg.font.SysFont(None, 30).render(
-                            'BLACK WON', False, (30, 30, 30)), (260, 310))
+                        WIN.blit(pg.font.SysFont(None, (int)(scale/2)).render(
+                            'BLACK WON', False, (30, 30, 30)), ((int)(3*scale), (int)(3.5*scale)))
                     if check == 2:  # If it's a draw
-                        WIN.blit(pg.font.SysFont(None, 30).render(
-                            'DRAW', False, (30, 30, 30)), (290, 310))
+                        WIN.blit(pg.font.SysFont(None, (int)(scale/2)).render(
+                            'DRAW', False, (30, 30, 30)), ((int)(3.5*scale), (int)(3.5*scale)))
 
             else:  # Handle normal moves
                 x, y = (e.pos)  # Get the mouse position
@@ -314,7 +317,7 @@ while game:  # Main game loop
                         remember = [x, y]  # Remember the selected piece
                         for V in Variants:  # Highlight possible moves
                             pg.draw.circle(WIN, (200, 200, 200),
-                                           (V[0] * scale + scale / 2, V[1] * scale + scale / 2), 10)
+                                           (V[0] * scale + scale / 2, V[1] * scale + scale / 2), scale/10)
         if e.type == pg.MOUSEBUTTONUP and e.button == 1 and Turn != -1 and Turn != -2:  # Left mouse button released
             x, y = (e.pos)  # Get the mouse position
             # Convert to board coordinates
@@ -364,14 +367,14 @@ while game:  # Main game loop
                     DrawBg()  # Redraw the chessboard background
                     DrawPieces()  # Redraw the chess pieces
                     if Turn == 0:  # If black wins
-                        WIN.blit(pg.font.SysFont(None, 30).render(
-                            'BLACK WON', False, (30, 30, 30)), (260, 310))
+                        WIN.blit(pg.font.SysFont(None, (int)(scale/2)).render(
+                            'BLACK WON', False, (30, 30, 30)), ((int)(3*scale), (int)(3.5*scale)))
                     if Turn == 1:  # If white wins
-                        WIN.blit(pg.font.SysFont(None, 30).render(
-                            'WHITE WON', False, (30, 30, 30)), (260, 310))
+                        WIN.blit(pg.font.SysFont(None, (int)(scale/2)).render(
+                            'WHITE WON', False, (30, 30, 30)), ((int)(3*scale), (int)(3.5*scale)))
                 if check == 2:  # If it's a draw
-                    WIN.blit(pg.font.SysFont(None, 30).render(
-                        'DRAW', False, (30, 30, 30)), (290, 310))
+                    WIN.blit(pg.font.SysFont(None, (int)(scale/2)).render(
+                        'DRAW', False, (30, 30, 30)), ((int)(3.5*scale), (int)(3.5*scale)))
                 Variants = []
             if check == 0:  # If the game continues
                 DrawBg()
